@@ -6,9 +6,9 @@ BIN=out/coversets
 
 "$BIN" -n "Open play" -h
 "$BIN" electric -h -n "Electric Cup"
-# can't do fighting yet FIXME
+"$BIN" fighting -x flying,psychic,ghost -h -n "Fighting Cup"
 "$BIN" flying -h -n "Flying Cup"
-# can't do psychic yet FIXME
+"$BIN" psychic -X Mew -h -n "Psychic Cup"
 "$BIN" fire,water,grass,electric -h -n "Color Cup"
 "$BIN" dragon,steel,fairy -h -n "Fantasy Cup"
 "$BIN" water,rock,steel -h -n "Fossil Cup"
