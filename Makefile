@@ -170,7 +170,6 @@ web: $(addprefix $(WEB)/, $(FAVICON)) $(WEBPAGES)
 
 $(addprefix $(WEB)/, $(FAVICON)): $(addprefix $(WEBSRC)/favicon/, $(FAVICON))
 	@mkdir -p $(@D)
-	echo $@
 	cp -av $(addprefix $(WEBSRC)/favicon/, $(shell basename $@)) $(WEB)
 
 preview: $(PAPERBACK).pdf
