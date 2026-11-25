@@ -1,3 +1,4 @@
+_minted/
 feraligatr2500.aux
 out
 pdfa.xmpi
@@ -5,4 +6,7 @@ pgo-pb.aux
 pgo-pb.bcf
 pgo-pb.log
 pgo-pb.pdf
+pgo-pb.lot
+pgo-pb.run.xml
+pgo-pb.toc
 webpage
