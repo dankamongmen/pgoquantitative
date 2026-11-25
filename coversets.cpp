@@ -4,6 +4,22 @@
 #include <algorithm>
 
 using tarray = std::array<bool, TYPECOUNT>;
+using typingvec = std::vector<std::pair<pgo_types_e, pgo_types_e>>;
+
+// coverset detection algorithm:
+//
+// generate all typings in the population
+// start with no arrays
+// for each member M of the typing population
+//  for each array A
+//   can A already hit M at the required level? if so, loop
+//   for each type T that can hit M at required level
+//     extend copy of A with T, check that it's not already in list
+//      if it is, delete it
+//      if it is not, add it to list
+//   delete A from list
+// sort by size, delete all that are not minimal
+
 
 // tocc -- array indicating membership of attack types in this coverset
 static void
@@ -107,14 +123,14 @@ emit_coversets(std::vector<tarray> &tarrays, const std::string &title, unsigned 
 //  if the first int is TYPECOUNT, it's not populated (we don't care)
 //  we must cover each valid typing at level + 1
 static int
-print_coverset(const tarray &tocc, int v, const pgo_types_e tvec[][2], int level,
+print_coverset(const tarray &tocc, const typingvec &tvec, int level,
                std::vector<tarray> &setvec){
-  for(int i = 0 ; i < v ; ++i){
-    if(tvec[i][0] != TYPECOUNT){ // it's populated; ensure we cover
+  for(unsigned i = 0 ; i < tvec.size() ; ++i){
+    if(tvec[i].first != TYPECOUNT){ // it's populated; ensure we cover
       int covered = 0;
       for(pgo_types_e j = TYPESTART ; j < TYPECOUNT ; ++j){
         if(tocc[j]){ // we have this attacking type; check the typing relation
-          int tr = typing_relation(j, tvec[i][0], tvec[i][1]);
+          int tr = typing_relation(j, tvec[i].first, tvec[i].second);
           if(tr > level){
             covered = 1;
             break;
@@ -133,7 +149,7 @@ print_coverset(const tarray &tocc, int v, const pgo_types_e tvec[][2], int level
 
 // we are placing n 1s among the last m slots of tocc
 static int
-place_n_in_m(int n, int m, const tarray &tocc, int v, const pgo_types_e tvec[][2],
+place_n_in_m(int n, int m, const tarray &tocc, const typingvec &tvec,
              int level, std::vector<tarray> &setvec){
   tarray tcopy(tocc);
   // base case m == 1
@@ -141,64 +157,29 @@ place_n_in_m(int n, int m, const tarray &tocc, int v, const pgo_types_e tvec[][2
     if(n){
       tcopy[TYPECOUNT - m] = 1;
     }
-    int r = print_coverset(tcopy, v, tvec, level, setvec);
+    int r = print_coverset(tcopy, tvec, level, setvec);
     return r;
   }
   int ret = 0;
   // test with our bit off unless we must place this bit
   if(n < m){
-    ret += place_n_in_m(n, m - 1, tcopy, v, tvec, level, setvec);
+    ret += place_n_in_m(n, m - 1, tcopy, tvec, level, setvec);
   }
   // test with our bit on if we have a bit to place
   if(n){
     tcopy[TYPECOUNT - m] = 1;
-    ret += place_n_in_m(n - 1, m - 1, tcopy, v, tvec, level, setvec);
+    ret += place_n_in_m(n - 1, m - 1, tcopy, tvec, level, setvec);
   }
   return ret;
 }
 
 // print the sets of size n or less which cover the specified vector
 static int
-gen_coversets(int n, int v, const pgo_types_e tvec[][2], int level,
+gen_coversets(int n, const typingvec &tvec, int level,
               std::vector<tarray> &setvec){
   tarray tocc{};
-  return place_n_in_m(n, TYPECOUNT, tocc, v, tvec, level, setvec);
+  return place_n_in_m(n, TYPECOUNT, tocc, tvec, level, setvec);
 }
-
-// print minimal coversets of the monotypes, and for each monotype, the minimal
-// coversets for all monotypes except that one
-/*static void
-print_complete_coversets(int level){
-  int t[TYPECOUNT][2];
-  for(int i = 0 ; i < TYPECOUNT ; ++i){
-    t[i][0] = i;
-    t[i][1] = i;
-  }
-  for(int j = 1 ; j <= TYPECOUNT ; ++j){
-    int min = gen_coversets(j, sizeof(t) / sizeof(*t), t, level);
-    if(min){
-      printf("%d coversets of size %d\n", min, j);
-      break;
-    }
-  }
-  int prev[2];
-  for(int i = 0 ; i < TYPECOUNT ; ++i){
-    if(i > 0){ // turn previous back on
-      t[i - 1][0] = prev[0];
-      t[i - 1][1] = prev[0];
-    }
-    prev[0] = t[i][0];
-    prev[1] = t[i][1];
-    t[i][0] = t[i][1] = TYPECOUNT; // turn off each one in succession
-    for(int j = 1 ; j <= TYPECOUNT ; ++j){
-      int min = gen_coversets(j, sizeof(t) / sizeof(*t), t, level);
-      if(min){
-        printf("missing %s: %d coversets of size %d\n", tnames[i], min, j);
-        break;
-      }
-    }
-  }
-}*/
 
 static void
 print_participant_attacks(const species &s, bool fast){
@@ -226,125 +207,116 @@ print_participant_attacks(const species &s, bool fast){
   }
 }
 
+static void
+print_participant(const species &s){
+  std::cout << " " << s.name << " (" << tname_capitalized(s.t1);
+  if(s.t2 != TYPECOUNT){
+    std::cout << ", " << tname_capitalized(s.t2);
+  }
+  std::cout << ") → ";
+  print_participant_attacks(s, true);
+  std::cout << " : ";
+  print_participant_attacks(s, false);
+  std::cout << std::endl;
+}
+
+// returns true if s ought be in the population according to the
+// rules of generate_population()
 static bool
-excluded_p(const species &s, const std::vector<const species *> &excludelist){
-  for(const auto es : excludelist){
-    if(s.name == es->name){
+check_pop_for_form(const tarray &want, const tarray &exclude,
+                   const std::vector<const species *> &informs,
+                   const std::vector<const species *> &outforms,
+                   const species &s){
+  if(pvp_banned_p(s)){
+    return false;
+  }
+  // first check outforms
+  for(const auto out : outforms){
+    if(s.name == out->name){
+      return false;
+    }
+  }
+  // check informs
+  for(const auto in : informs){
+    if(s.name == in->name){
       return true;
     }
   }
-  if(pvp_banned_p(s)){
+  // check exclude against both of s's types
+  if(exclude[s.t1] || (s.t2 != TYPECOUNT && exclude[s.t2])){
+    return false;
+  }
+  // check want against both of s's types
+  if(want[s.t1] || (s.t2 != TYPECOUNT && want[s.t2])){
     return true;
   }
   return false;
 }
 
-static unsigned
-print_participant(int tcount, const pgo_types_e t[TYPINGCOUNT][2],
-                  const std::vector<const species *> &excludelist,
-                  const species &s, bool output){
-  if(excluded_p(s, excludelist)){
-    return 0;
-  }
-  bool valid = false;
-  for(int ti = 0 ; ti < tcount ; ++ti){
-    if((s.t1 == t[ti][0] && (s.t2 == t[ti][1] || (s.t2 == TYPECOUNT && s.t1 == t[ti][1]))) ||
-        (s.t1 == t[ti][1] && s.t2 == t[ti][0])){
-      valid = true;
-      break;
-    }
-  }
-  if(!valid){
-    return 0;
-  }
-  if(output){
-    std::cout << " " << s.name << " (" << tname_capitalized(s.t1);
-    if(s.t2 != TYPECOUNT){
-      std::cout << ", " << tname_capitalized(s.t2);
-    }
-    std::cout << ") → ";
-    print_participant_attacks(s, true);
-    std::cout << " : ";
-    print_participant_attacks(s, false);
-    std::cout << std::endl;
-  }
-  return 1;
-}
-
-// print all species represented in the typing vector t of size tcount
-static unsigned
-print_participants(int tcount, const pgo_types_e t[TYPINGCOUNT][2],
-                   const std::vector<const species *> &excludelist,
-                   bool usemegas, bool output){
-  unsigned pop = 0;
+// want: types to include (in)
+// exclude: types to exclude, has priority over want (in)
+// inspec: forms to include, has priority over want+exclude (in)
+// outspec: forms to exclude, has priority over everything (in)
+// bool: ought megas be considered
+// pop: resulting collection of forms (out)
+// store: backing store for pop (out)
+static void
+generate_population(const tarray &want, const tarray &exclude,
+                    const std::vector<const species *> &informs,
+                    const std::vector<const species *> &outforms,
+                    bool megas, std::vector<const species *> &pop,
+                    std::forward_list<species> &store){
   for(auto s = species_begin() ; s != species_end() ; ++s){
-    pop += print_participant(tcount, t, excludelist, *s, output);
-    if(usemegas){
+    if(check_pop_for_form(want, exclude, informs, outforms, *s)){
+      pop.emplace_back(&*s);
+    }
+    if(megas){
       for(const auto &m : s->mforms){
-        pop += print_participant(tcount, t, excludelist, species(&*s, m), output);
+        auto &smeg = store.emplace_front(&*s, m);
+        if(check_pop_for_form(want, exclude, informs, outforms, smeg)){
+          pop.emplace_back(&smeg);
+        }
       }
     }
   }
-  return pop;
 }
 
-// print minimal coversets of all typings
-/*static void
-print_complete_coversets_duals(int level, bool html){
-  static pgo_types_e t[TYPINGCOUNT][2];
-  int pos = 0;
-  for(pgo_types_e i = TYPESTART ; i < TYPECOUNT ; ++i){
-    for(pgo_types_e j = i ; j < TYPECOUNT ; ++j){
-      t[pos][0] = i;
-      t[pos][1] = j;
-      ++pos;
+// extract all the typings from the generated population.
+// typepop will be a set of them with no duplicates.
+static void
+generate_targtypes(const std::vector<const species *> &pop,
+                   std::vector<std::pair<pgo_types_e, pgo_types_e>> &typepop){
+  for(const auto *s : pop){
+    bool found = false;
+    for(const auto &p : typepop){
+      if((s->t1 == p.first && s->t2 == p.second) || (s->t1 == p.second && s->t2 == p.first)){
+        found = true;
+        break;
+      }
+    }
+    if(!found){
+      typepop.emplace_back(s->t1, s->t2);
     }
   }
-  for(int j = 1 ; j <= TYPECOUNT ; ++j){
-    int min = gen_coversets(j, pos, t, level);
-    if(min){
-      fprintf(stderr, "%d dual coversets of size %d\n", min, j);
-      break;
-    }else{
-      fprintf(stderr, "no dual coversets of size %d\n", j);
-    }
-  }
-}*/
+}
 
-// print coverset of all typings including/excluding certain types. t is a
+// print coverset of all specified typings. t is a
 // TYPECOUNT sized vector with 1 for the typings we care about, 0 otherwise.
 static int
-print_coversets_duals(const std::string &title, const int *t, bool exclude,
-                      int *pos, pgo_types_e ty[TYPINGCOUNT][2],
-                      int level, std::vector<const species *> &excludelist,
-                      bool usemegas, bool html){
+print_coversets_duals(const std::string &title, const std::vector<const species *> &pop,
+                      const std::vector<std::pair<pgo_types_e, pgo_types_e>> &tpop,
+                      int level, bool html){
   std::vector<tarray> setvec;
-  *pos = 0;
-  // FIXME this ought take into account empty typings, especially with the excludelist
-  for(pgo_types_e i = TYPESTART ; i < TYPECOUNT ; ++i){
-    for(pgo_types_e j = i ; j < TYPECOUNT ; ++j){
-      if(exclude){
-        if(!t[i] && !t[j]){
-          ty[*pos][0] = i;
-          ty[*pos][1] = j;
-          ++*pos;
-        }
-      }else{
-        if(t[i] || t[j]){
-          ty[*pos][0] = i;
-          ty[*pos][1] = j;
-          ++*pos;
-        }
-      }
-    }
-  }
   for(int j = 1 ; j <= TYPECOUNT ; ++j){
-    int min = gen_coversets(j, *pos, ty, level, setvec);
+    int min = gen_coversets(j, tpop, level, setvec);
     if(min){
       fprintf(stderr, "%d dual coversets of size %d\n", min, j);
-      unsigned pop;
-      pop = print_participants(*pos, ty, excludelist, usemegas, !html);
-      emit_coversets(setvec, title, pop, html);
+      if(!html){
+        for(const auto *s : pop){
+          print_participant(*s);
+        }
+      }
+      emit_coversets(setvec, title, pop.size(), html);
       return 0;
     }else{
       fprintf(stderr, "no dual coversets of size %d\n", j);
@@ -369,7 +341,7 @@ usage(const char *argv0){
 }
 
 static int
-lex_type(const char* tstr, int tlist[TYPECOUNT]){
+lex_type(const char* tstr, tarray &tlist){
   pgo_types_e t = lookup_type(tstr);
   if(t == TYPECOUNT){
     std::cerr << "couldn't look up type for " << tstr << std::endl;
@@ -386,7 +358,7 @@ lex_type(const char* tstr, int tlist[TYPECOUNT]){
 // lex a comma-delimited listed of types. it is an error to be empty, or to
 // repeat a type, or to specify an invalid type. case is ignored.
 static int
-lex_typelist(const char* arg, int tlist[TYPECOUNT]){
+lex_typelist(const char* arg, tarray &tlist){
   for(unsigned z = 0 ; z < TYPECOUNT ; ++z){
     tlist[z] = 0;
   }
@@ -427,10 +399,9 @@ lex_typelist(const char* arg, int tlist[TYPECOUNT]){
 }
 
 int main(int argc, char* const* argv){
-  int kern[TYPECOUNT] = {};
-  int reqchargedtype[TYPECOUNT] = {};
+  tarray kern, outkern{}, reqchargedtype;
   const char *title = nullptr;
-  const char* argv0 = argv[0];
+  const char *argv0 = argv[0];
   bool exclude = false;
   bool reqcharged = false; // FIXME not yet implemented
   bool usemegas = false;
@@ -457,7 +428,7 @@ int main(int argc, char* const* argv){
           std::cerr << "can't provide -x twice" << std::endl;
           usage(argv0); break;
         }
-        if(lex_typelist(optarg, kern)){
+        if(lex_typelist(optarg, outkern)){
           usage(argv0); break;
         }
         exclude = true;
@@ -474,6 +445,7 @@ int main(int argc, char* const* argv){
         }
         break;
       case 't': // show population members that can use these types of charged attacks
+        fprintf(stderr, "-t is not yet supported\n"); // FIXME
         if(reqcharged){
           std::cerr << "can't provide -t twice" << std::endl;
           usage(argv0); break;
@@ -514,25 +486,22 @@ int main(int argc, char* const* argv){
       std::cerr << "too many arguments" << std::endl;
       usage(argv0);
     }
-    if(exclude){
-      // FIXME
-      std::cerr << "exclude not yet supported from typelist" << std::endl;
-      usage(argv0);
-    }
     if(lex_typelist(*(argv + optind), kern)){
       usage(argv0);
     }
   }else{
     for(pgo_types_e t = TYPESTART ; t < TYPECOUNT ; ++t){
-      kern[t] = 1;
+      kern[t] = true;
     }
   }
-  int pos;
-  static pgo_types_e ty[TYPINGCOUNT][2];
   if(!title){
     title = "Custom";
   }
-  print_coversets_duals(title, kern, exclude, &pos, ty, level,
-                        excludelist, usemegas, html);
+  std::forward_list<species> store;
+  std::vector<const species *> pop;
+  std::vector<std::pair<pgo_types_e, pgo_types_e>> typepop;
+  generate_population(kern, outkern, {}, excludelist, usemegas, pop, store);
+  generate_targtypes(pop, typepop);
+  print_coversets_duals(title, pop, typepop, level, html);
   return EXIT_SUCCESS;
 }
