@@ -1440,21 +1440,6 @@ int write_family_iv_pages(const species &base, const std::string &prefix){
   for(const auto s : family){
     fstats.emplace_back(s);
   }
-  std::string style =
-    "<style>"
-    "td.gliv { background-color: rgba(208, 255, 208, 0.25); }"
-    "td.uliv { background-color: rgba(208, 208, 255, 0.25); }"
-    "td.mliv { background-color: rgba(255, 208, 208, 0.25); }"
-    "table.speciesivs { margin: 0 0 0 1em; }"
-    "table.speciesivs tr>:nth-child(2n+3) { padding: 0 0 0 1em; text-align: left; }"
-    "table.speciesivs tr>:nth-child(even) { padding: 0 0 0 1em; text-align: right; }"
-    ".famsummary { margin: 0 1em 2em 1em; }"
-    ".famsummary tr>:nth-child(1) { text-align: center; }"
-    ".famsummary tr>:nth-child(2) { text-align: left; }"
-    ".famsummary tr>:nth-child(n+3) { text-align: right; padding: 0 0 0 1em; }"
-    ".titlecontainer { max-width: fit-content; }"
-    ".purifytitle { font-weight: bold; text-align: center; }"
-    "</style>";
   for(int iva = 0 ; iva <= MAXIVELEM ; ++iva){
     for(int ivd = 0 ; ivd <= MAXIVELEM ; ++ivd){
       for(int ivs = 0 ; ivs <= MAXIVELEM ; ++ivs){
@@ -1465,7 +1450,7 @@ int write_family_iv_pages(const species &base, const std::string &prefix){
           return -1;
         }
         std::string title = base.name + " at " + std::to_string(iva) + "-" + std::to_string(ivd) + "-" + std::to_string(ivs);
-        write_header(fp, title, ivsearchscript(nullptr) + style, 2);
+        write_header(fp, title, ivsearchscript(nullptr), 2);
         if(write_family_iv_page(fp, base, iva, ivd, ivs, fstats)){
           return -1;
         }
