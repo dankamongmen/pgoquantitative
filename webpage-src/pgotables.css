@@ -113,6 +113,13 @@ div#mechanics { /* mon pages */
   text-justify: inter-word;
 }
 
+.gridimg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40%, 1fr));
+  gap: 0;
+  list-style: none;
+}
+
 div#transitions { /* mon pages */
   overflow: hidden;
   padding: 0 1em 0 1em;

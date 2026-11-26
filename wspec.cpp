@@ -906,13 +906,17 @@ write_unique_mechanics(std::ostream &fp, const species &s){
   fp << "<h2>unique mechanics</h2>" << std::endl;
   fp << "<p>" << mech << "</p>";
   const auto bforms = battle_forms(s);
-  for(const auto &b : bforms){
-    std::string encname;
-    encode_name(b, encname); // do *not* use URI encoding
-    fp << "<figure>";
-    fp << "<img class=\"sprite\" src=\"../images/mon/" << encname << ".png\" width=\"50%\" alt=\"" << b << "\"/>";
-    fp << "<figcaption>" << b << "</figcaption>";
-    fp << "</figure>" << std::endl;
+  if(bforms.size()){
+    fp << "<ul class=\"gridimg\">";
+    for(const auto &b : bforms){
+      std::string encname;
+      encode_name(b, encname); // do *not* use URI encoding
+      fp << "<li><figure>";
+      fp << "<img class=\"sprite\" src=\"../images/mon/" << encname << ".png\" width=\"50%\" alt=\"" << b << "\"/>";
+      fp << "<figcaption>" << b << "</figcaption>";
+      fp << "</figure></li>";
+    }
+    fp << "</ul>";
   }
   fp << "</div>" << std::endl;
 }
