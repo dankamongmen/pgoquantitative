@@ -1042,10 +1042,10 @@ std::string unique_mechanics(const std::string& name){
  "Morpeko cannot defend gyms, assault gyms, or participate in raids.";
     }else if(name == "Aegislash"){
       return
- "Aegislash has Blade and Shield forms which switch the other's ATK and DEF stats. "
+ "Aegislash has Sword and Shield forms with mutually reversed ATK and DEF stats. "
  "Outside of battle, it is always in the Shield form (97 ATK, 272 DEF). "
  "While in Shield form, its fast attacks have zero power (and thus inflict a single point of damage). "
- "Immediately before throwing a charged move, it takes on its Blade form. "
+ "Immediately before throwing a charged move, it takes on its Sword form. "
  "Upon using a shield, or being substituted, it reverts to Shield form. "
  "Since its Shield form (considered for League CP bounds) has much lower CP, this allows a high ATK to be snuck under a CP bound (though it will only be effective for charged attacks). "
  "Aegislash cannot defend gyms, assault gyms, or participate in raids.";
