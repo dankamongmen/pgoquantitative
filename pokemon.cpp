@@ -4044,9 +4044,6 @@ void species::synth_mega_species(const species *s, const mega &m) {
   if(m.plusatk){
     attacks.emplace_back(m.plusatk);
   }
-  if(s->shadow){
-    attacks.emplace_back(&ATK_Return);
-  }
   shiny = s->shiny;
   shadow = false;
   dmax = 0;
