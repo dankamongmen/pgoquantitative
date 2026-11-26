@@ -79,6 +79,6 @@ int main(int argc, char **argv){
     }
     emit_row(t);
   }
-  std::cout << "<table>" << std::endl;
+  std::cout << "</table>" << std::endl;
   return EXIT_SUCCESS;
 }
