@@ -43,10 +43,7 @@ static void emit_row(const timetofirst &t){
   std::cout << " + ";
   html_type(std::cout, t.ca->type, false);
   std::cout << "&nbsp;";
-  std::string prefix, suffix;
-  emit_html_attack_fancy(std::cout, *t.s, t.ca, prefix, suffix, true);
-  std::cout << ' ';
-  summarize_buffs_html(std::cout, *t.ca, prefix, suffix);
+  emit_html_attack(std::cout, *t.s, t.ca, true);
   std::cout << "</td>";
   std::cout << "<td>" << t.turns << "</td>";
   std::cout.precision(1);
