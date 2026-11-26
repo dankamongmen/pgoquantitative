@@ -358,29 +358,49 @@ write_atk_user(std::ostream &fp, const std::string &s, bool &printed, bool elite
 }
 
 static void
+write_purified_users(std::ostream &fp, const attack &a, bool &printed){
+  for(auto s = species_begin() ; s != species_end() ; ++s){
+    if(s->shadow){
+      bool stab = has_stab_p(*s, &a);
+      write_atk_user(fp, s->name, printed, false, stab);
+      for(const auto &m : s->mforms){
+        stab = has_stab_p({&*s, m}, &a);
+        write_atk_user(fp, m.name, printed, false, stab);
+      }
+    }
+  }
+}
+
+static void
 write_atk_users(std::ostream &fp, const attack &a){
   fp << "<h2>users</h2>" << std::endl;
   bool printed = false;
-  for(auto s = species_begin() ; s != species_end() ; ++s){
-    bool matched = false;
-    for(const auto sa : s->attacks){
-      if(a.name == sa->name){
-        matched = true;
-        bool stab = has_stab_p(*s, &a);
-        bool elitetm = exclusive_attack_p(*s, &a);
-        write_atk_user(fp, s->name, printed, elitetm, stab);
-        for(const auto &m : s->mforms){
-          stab = has_stab_p({&*s, m}, &a);
-          write_atk_user(fp, m.name, printed, elitetm, stab);
+  if(a.name == "Return"){
+    write_purified_users(fp, ATK_Return, printed);
+  }else if(a.name == "Frustration"){
+    write_purified_users(fp, ATK_Frustration, printed);
+  }else{
+    for(auto s = species_begin() ; s != species_end() ; ++s){
+      bool matched = false;
+      for(const auto sa : s->attacks){
+        if(a.name == sa->name){
+          matched = true;
+          bool stab = has_stab_p(*s, &a);
+          bool elitetm = exclusive_attack_p(*s, &a);
+          write_atk_user(fp, s->name, printed, elitetm, stab);
+          for(const auto &m : s->mforms){
+            stab = has_stab_p({&*s, m}, &a);
+            write_atk_user(fp, m.name, printed, elitetm, stab);
+          }
+          break;
         }
-        break;
       }
-    }
-    if(!matched){
-      for(const auto &m : s->mforms){
-        if(m.plusatk && attack_named_p(m.plusatk, a.name)){
-          bool stab = has_stab_p({&*s, m}, &a);
-          write_atk_user(fp, m.name, printed, false, stab);
+      if(!matched){
+        for(const auto &m : s->mforms){
+          if(m.plusatk && attack_named_p(m.plusatk, a.name)){
+            bool stab = has_stab_p({&*s, m}, &a);
+            write_atk_user(fp, m.name, printed, false, stab);
+          }
         }
       }
     }
