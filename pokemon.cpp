@@ -3246,7 +3246,7 @@ static const std::vector<species> sdex = {
 		true, true, 0, { }, species::CAT_NORMAL, 50, species::EVOL_NOITEM, species::REGION_ALL, 0, {}, },
   {  771, "Pyukumuku", TYPE_WATER, TYPECOUNT, 97, 224, 146, "",
 		{ &ATK_Counter, &ATK_Soak, &ATK_Mirror_Coat, },
-		false, false, 0, { }, species::CAT_NORMAL, 50, species::EVOL_NOITEM, species::REGION_ALL, 0, {}, },
+		true, false, 0, { }, species::CAT_NORMAL, 50, species::EVOL_NOITEM, species::REGION_ALL, 0, {}, },
   /*{  772, "Type: Null", TYPE_NORMAL, TYPECOUNT, 184, 184, 216, "",
 		{ &ATK_Tackle, &ATK_Take_Down, &ATK_Aerial_Ace, &ATK_Iron_Head, &ATK_Tri_Attack, },
 		false, false, 0, { }, species::CAT_LEGENDARY, 100, species::EVOL_NOITEM, species::REGION_ALL, 0, {}, }, */
