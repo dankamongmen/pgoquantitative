@@ -909,7 +909,10 @@ write_unique_mechanics(std::ostream &fp, const species &s){
   for(const auto &b : bforms){
     std::string encname;
     encode_name(b, encname); // do *not* use URI encoding
-    fp << "<img class=\"sprite\" src=\"../images/mon/" << encname << ".png\" width=\"50%\" alt=\"" << b << "\"/>" << std::endl;
+    fp << "<figure>";
+    fp << "<img class=\"sprite\" src=\"../images/mon/" << encname << ".png\" width=\"50%\" alt=\"" << b << "\"/>";
+    fp << "<figcaption>" << b << "</figcaption>";
+    fp << "</figure>" << std::endl;
   }
   fp << "</div>" << std::endl;
 }

@@ -1506,7 +1506,7 @@ const char *tname_capitalized(pgo_types_e t);
 // can this species revert to a previous form?
 bool bidirectional_evol_p(const species &s);
 
-static inline const char*
+inline const char*
 tname_capitalized(int i){
   if(i < static_cast<int>(TYPESTART) || i >= static_cast<int>(TYPECOUNT)){
     return nullptr;
@@ -1518,7 +1518,7 @@ pgo_weather_t type_weather_boost(pgo_types_e t);
 
 // a full typing can be boosted by one or two different types of weather.
 // w1 and w2 will both hold valid weather typings, but they might be the same.
-static inline void
+inline void
 typing_weather_boosts(pgo_types_e t1, pgo_types_e t2, pgo_weather_t &w1, pgo_weather_t &w2){
   w1 = type_weather_boost(t1);
   w2 = type_weather_boost(t2);

@@ -1448,7 +1448,6 @@ int write_family_iv_pages(const species &base, const std::string &prefix){
     "table.speciesivs { margin: 0 0 0 1em; }"
     "table.speciesivs tr>:nth-child(2n+3) { padding: 0 0 0 1em; text-align: left; }"
     "table.speciesivs tr>:nth-child(even) { padding: 0 0 0 1em; text-align: right; }"
-    "table.speciesivs caption { caption-side: bottom; font-weight: bold; }"
     ".famsummary { margin: 0 1em 2em 1em; }"
     ".famsummary tr>:nth-child(1) { text-align: center; }"
     ".famsummary tr>:nth-child(2) { text-align: left; }"
