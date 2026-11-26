@@ -35,7 +35,7 @@ WEBPAGES:=$(addprefix $(WEB)/, $(CSS) \
 						nodyna noshadow noshiny nosecondcharged shadows \
 						dynacost dynafast dynabulk \
 						typesARA setsARA typesDRA coversets \
-						effectiveness listTTF gmax megas mythicals \
+						effectiveness listTTF listTTFNx1 gmax megas mythicals \
 						walkevol regional cpms evolhetero \
 						essay-ivs essay-max essay-megas-gbl essay-calcs \
 						select-options \
