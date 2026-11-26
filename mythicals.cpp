@@ -15,12 +15,14 @@ emit_cat_table(species::species_cat cat){
   std::cout << "<table class=\"evenshade\" id=\"";
   encode_catstr(species::categorystr(cat));
   std::cout << "\">" << std::endl;
-  std::cout << "<tr><th>T</th><th>Form</th><th>";
+  std::cout << "<tr><th/><th>Form</th><th>";
   std::cout << "<img src=\"images/shiny.png\" class=\"icon\" alt=\"Shiny\"/>";
   std::cout << "</th><th>";
   std::cout << "<img src=\"images/shadow.png\" class=\"icon\" alt=\"Shadow\"/>";
   std::cout << "</th><th>";
   std::cout << "<img src=\"images/dynamax.png\" class=\"icon\" alt=\"Dynamax\"/>";
+  std::cout << "</th><th>";
+  std::cout << "<img src=\"images/mega.png\" class=\"icon\" alt=\"Mega\"/>";
   std::cout << "</th></tr>" << std::endl;
   for(auto s = species_begin() ; s != species_end() ; ++s){
     if(s->category == cat){
@@ -43,6 +45,11 @@ emit_cat_table(species::species_cat cat){
       std::cout << "</td>";
       std::cout << "<td>";
       if(s->dmax){
+        std::cout << "✓";
+      }
+      std::cout << "</td>";
+      std::cout << "<td>";
+      if(s->mforms.size()){
         std::cout << "✓";
       }
       std::cout << "</td>";
