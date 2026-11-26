@@ -590,11 +590,15 @@ write_stats(std::ostream &fp, const species &s){
       fp << " (" << s.a2cost * 6 / 5 << " kSD for Shadow)";
     }*/
   }else if(s.shadow){
-    fp << s.a2cost * 6 / 5 << " kSD (Shadow only)";
+    fp << s.a2cost * 6 / 5 << " kSD (Shadow only)<br/>";
   }else{
-    fp << "n/a";
+    fp << "n/a<br/>";
   }
-  fp << "<br/>";
+  if(s.shadow){
+    fp << "Purification cost: " << purification_cost(s) << " kSD<br/>";
+  }else{
+    fp << "Shadow <i>not</i> available<br/>";
+  }
   const auto *rstr = s.regionstr();
   if(!rstr){
     rstr = "Worldwide";
@@ -604,13 +608,6 @@ write_stats(std::ostream &fp, const species &s){
     fp << "Shiny available<br/>";
   }else{
     fp << "Shiny <i>not</i> available<br/>";
-  }
-  if(s.shadow){
-    fp << "Shadow available<br/>";
-    // purification costs seem to be wrong, don't track 2nd attack costs in reality
-    // fp << "Purification cost: " << purification_cost(s) << " kSD<br/>";
-  }else{
-    fp << "Shadow <i>not</i> available<br/>";
   }
   if(s.dmax && s.dmax != GMAX_TIER){
     fp << "Dynamax available<br/>";
@@ -1033,7 +1030,7 @@ write_family_ivpages(const species &base){
 
 // assume we're in the target directory
 static int
-write_index(){
+write_index(bool dofamilyivs){
   std::ofstream fp("index.html");
   if(!fp.is_open()){
     std::cerr << "error opening index.html for writing" << std::endl;
@@ -1065,10 +1062,12 @@ write_index(){
     if(write_mon_page(*s)){
       return -1;
     }
-    if(s->from.empty()){
-      if(!pvp_banned_p(*s)){
-        if(write_family_ivpages(*s)){
-          return -1;
+    if(dofamilyivs){
+      if(s->from.empty()){
+        if(!pvp_banned_p(*s)){
+          if(write_family_ivpages(*s)){
+            return -1;
+          }
         }
       }
     }
@@ -1080,21 +1079,29 @@ write_index(){
 
 static void
 usage(const char *argv0, int ret){
-  std::cerr << "usage: " << argv0 << " targetdir" << std::endl;
+  std::cerr << "usage: " << argv0 << " targetdir [-f]" << std::endl;
+  std::cerr << " -f: rebuild family IV pages" << std::endl;
   exit(ret);
 }
 
 // generate a directory full of species pages, overwriting any that exist.
 // an index.html is also generated.
 int main(int argc, const char **argv){
-  if(argc != 2){
+  bool dofamilyivs = false;
+  if(argc < 2 || argc > 4){
     usage(argv[0], EXIT_FAILURE);
+  }
+  if(argc == 3){
+    if(strcmp(argv[2], "-f") && strcmp(argv[1], "-f")){
+      usage(argv[0], EXIT_FAILURE);
+    }
+    dofamilyivs = true;
   }
   if(chdir(argv[1])){
     std::cerr << "error changing directory to " << argv[1] << ": " << strerror(errno) << std::endl;
     usage(argv[0], EXIT_FAILURE);
   }
-  if(write_index()){
+  if(write_index(dofamilyivs)){
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
