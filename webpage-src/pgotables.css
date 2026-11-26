@@ -61,6 +61,17 @@ hr {
   margin: 0;
 }
 
+caption {
+  caption-side: bottom;
+  font-weight: bold;
+}
+
+figcaption {
+  caption-side: bottom;
+  text-align: center;
+  font-weight: bold;
+}
+
 /* an icon used among text */
 img.icon { height: 1em; width: 1em; vertical-align: top; }
 
@@ -110,11 +121,6 @@ div#transitions { /* mon pages */
 div#atkeffectiveness { /* mon pages */
   overflow: hidden;
   padding: 0 1em 0 1em;
-}
-
-table#atkeffect caption {
-  caption-side: bottom;
-  font-weight: bold;
 }
 
 img.monscatter {
