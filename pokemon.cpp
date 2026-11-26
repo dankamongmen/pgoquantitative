@@ -415,7 +415,7 @@ static const std::vector<species> sdex = {
 		{ &ATK_Water_Gun, &ATK_Confusion, &ATK_Drain_Punch, &ATK_Ice_Beam, &ATK_Water_Pulse, &ATK_Scald, &ATK_Psychic, &ATK_Surf, },
 		true, true, 0, { &ATK_Surf, }, species::CAT_NORMAL, 50, species::EVOL_NOITEM, species::REGION_ALL, 0,
     // gets Chilling Water+
-    { { "Mega Slowbro", TYPE_WATER, TYPE_PSYCHIC, 224, 259, 216, 100, nullptr, }, }, },
+    { { "Mega Slowbro", TYPE_WATER, TYPE_PSYCHIC, 224, 259, 216, 100, &ATK_Chilling_Water_Plus, }, }, },
   {  80, "Galarian Slowbro", TYPE_POISON, TYPE_PSYCHIC, 182, 156, 216, "Galarian Slowpoke",
 		{ &ATK_Poison_Jab, &ATK_Confusion, &ATK_Drain_Punch, &ATK_Sludge_Bomb, &ATK_Scald, &ATK_Psychic, &ATK_Focus_Blast, &ATK_Surf, &ATK_Brutal_Swing, },
 		true, false, 0, { &ATK_Surf, }, species::CAT_NORMAL, 50, species::EVOL_CAPTUREPOISON30, species::REGION_ALL, 0, {}, },
