@@ -391,6 +391,7 @@ int main(int argc, char** argv){
   }else if(strcmp(argv[1], "c") == 0){
     fitfxn = calc_pok_cp;
     cmpfxn = statscmp_cp;
+    noshadows = true;
     fitchar = 'c';
     lcp = 0;
     excludebanned = false; // we truly want all for the CP list
