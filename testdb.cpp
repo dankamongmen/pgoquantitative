@@ -398,6 +398,39 @@ test_costs(void){
   return true;
 }
 
+struct leaguetest {
+  const std::string name;
+  bool gl, ul, ml;
+};
+
+bool test_usable_league(void){
+  std::vector<leaguetest> tests{
+    { "Necrozma Dawn Wings", false, true, true, },
+    { "Morpeko", true, true, false, },
+    { "Wobbuffet", true, false, false, },
+    { "Swampert", true, true, true, },
+  };
+  for(const auto &t : tests){
+    const species *s = lookup_species(t.name);
+    if(!s){
+      throw std::exception();
+    }
+    if(usable_in_gl(*s) != t.gl){
+      std::cerr << "unexpected result for " << t.name << " in gl" << std::endl;
+      return false;
+    }
+    if(usable_in_ul(*s) != t.ul){
+      std::cerr << "unexpected result for " << t.name << " in ul" << std::endl;
+      return false;
+    }
+    if(usable_in_ml(*s) != t.ml){
+      std::cerr << "unexpected result for " << t.name << " in ml" << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
 // sanity check the pgotypes db
 int main(void){
   if(!test_tnames()){
@@ -422,5 +455,8 @@ int main(void){
     if(!test_attack(*it)){
       exit(EXIT_FAILURE);
     }
+  }
+  if(!test_usable_league()){
+    exit(EXIT_FAILURE);
   }
 }

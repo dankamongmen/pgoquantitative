@@ -1052,3 +1052,21 @@ unsigned species::category_min_level(void) const {
       return 1;
   }
 }
+
+bool usable_in_league(const species &s, int min, int max){
+  for(int iva = 0 ; iva <= MAXIVELEM ; ++iva){
+    for(int ivd = 0 ; ivd <= MAXIVELEM ; ++ivd){
+      for(int ivs = 0 ; ivs <= MAXIVELEM ; ++ivs){
+        int cp;
+        auto hl = maxlevel_cp_bounded(s, s.atk + iva, s.def + ivd, s.sta + ivs, max, &cp);
+        if(cp < min){
+          continue;
+        }
+        if(hl){
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}

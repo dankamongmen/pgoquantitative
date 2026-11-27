@@ -1534,4 +1534,21 @@ int label_string(const char *s);
 // calculate DRA for the given typing
 float calc_dra(pgo_types_e t1, pgo_types_e t2);
 
+// is species s usable, given the specified minimum and maximum cp? it must
+// have at least one IV+level configuration within the range. specify 0 as
+// a don't-care. this is a fairly expensive function.
+bool usable_in_league(const species &s, int min, int max);
+
+inline bool usable_in_gl(const species &s){
+  return usable_in_league(s, 0, GLCPCAP);
+}
+
+inline bool usable_in_ul(const species &s){
+  return usable_in_league(s, GLCPCAP, ULCPCAP);
+}
+
+inline bool usable_in_ml(const species &s){
+  return usable_in_league(s, ULCPCAP, 0);
+}
+
 #endif
