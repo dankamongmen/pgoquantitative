@@ -38,7 +38,7 @@ dump_sim(std::ostream &fp, const attack *fa, const std::vector<int> &mods,
          const attack *c1, const attack *c2){
   fp << "digraph {" << std::endl;
   fp << "rankdir=LR" << std::endl;
-  fp << "fontname=\"sans-serif\"" << std::endl;
+  fp << "fontname=\"sans-serif bold\"" << std::endl;
   fp << "label=<" << fa->name << ", " << c1->name;
   if(c2){
     fp << ", " << c2->name;
