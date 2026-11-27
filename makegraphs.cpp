@@ -34,14 +34,24 @@ write_pacing(const species &s){
 static void
 write_iv_graphs(const species &s){
   if(!pvp_banned_p(s)){
-    /*if(write_pacing(s)){
+    if(write_pacing(s)){
       throw std::exception();
-    }*/
-    // FIXME i'd like to check these and exit on error, but we need determine
-    // whether we're usable in the requested league...
-    write_iv_graph(s, "GL");
-    write_iv_graph(s, "UL");
-    write_iv_graph(s, "ML");
+    }
+    if(usable_in_gl(s)){
+      if(write_iv_graph(s, "GL")){
+        throw std::exception();
+      }
+    }
+    if(usable_in_ul(s)){
+      if(write_iv_graph(s, "UL")){
+        throw std::exception();
+      }
+    }
+    if(usable_in_ml(s)){
+      if(write_iv_graph(s, "ML")){
+        throw std::exception();
+      }
+    }
   }
 }
 
@@ -69,6 +79,9 @@ int main(int argc, const char **argv){
   // FIXME parallelize this abortion
   std::vector<species> megas;
   for(auto s = species_begin() ; s != species_end() ; ++s){
+    if(pvp_banned_p(s)){
+      continue;
+    }
     if(write_mon_graphs(*s)){
       return EXIT_FAILURE;
     }
