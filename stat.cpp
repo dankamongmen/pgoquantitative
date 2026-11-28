@@ -81,6 +81,18 @@ turns_until_e(const attack *a, unsigned e){
   return (e + (a->energytrain - 1)) / a->energytrain * a->turns;
 }
 
+void stat_attack(const species &s, std::vector<ttfs> &ttfs, const attack *fa,
+                 const attack *ca, const stats *st){
+  unsigned t = turns_until_e(fa, -ca->energytrain);
+  float power = fa->powertrain;
+  if(has_stab_p(s, fa)){
+    power = calc_stab(power);
+  }
+  float pfast = t / fa->turns * power;
+  ++t; // account for the charged attack
+  ttfs.emplace_back(&s, st, t, pfast, fa, ca);
+}
+
 static void
 calctimespecies(const species &s, std::vector<ttfs> &ttfs, int lbound, int ubound){
   stats maxstat(&s, MAX_HALFLEVEL_BASIC, MAXIVELEM, MAXIVELEM, MAXIVELEM, false);
@@ -102,14 +114,7 @@ calctimespecies(const species &s, std::vector<ttfs> &ttfs, int lbound, int uboun
       if(c->energytrain >= 0){
         continue;
       }
-      unsigned t = turns_until_e(f, -c->energytrain);
-      float power = f->powertrain;
-      if(has_stab_p(s, f)){
-        power = calc_stab(power);
-      }
-      float pfast = t / f->turns * power;
-      ++t; // account for the charged attack
-      ttfs.emplace_back(&s, st, t, pfast, f, c);
+      stat_attack(s, ttfs, f, c, st);
     }
   }
   if(st != &maxstat){
@@ -123,14 +128,16 @@ calctimespecies(const species &s, std::vector<ttfs> &ttfs, int lbound, int uboun
 
 // get time to first and damage for all fast+charged pairs
 static void
-calctimetoall(std::vector<ttfs> &ttfs, std::vector<species> &megaspecs, int lbound, int ubound){
+calctimetoall(std::vector<ttfs> &ttfs, std::vector<species> &megaspecs,
+              std::forward_list<attack> &plusatks, int lbound, int ubound){
   for(auto s = species_begin() ; s != species_end() ; ++s){
     if(s->name.contains("Aegislash")){
       continue; // FIXME
     }
     calctimespecies(*s, ttfs, lbound, ubound);
     for(const auto &m : s->mforms){
-      megaspecs.emplace_back(&*s, m);
+      auto &smeg = megaspecs.emplace_back(&*s, m);
+      smeg.expand_plus_atk(plusatks);
     }
   }
   for(const auto &s : megaspecs){
@@ -212,7 +219,8 @@ int main(int argc, char **argv){
   std::vector<ttfs> ttfs;
   header(!!ubound);
   std::vector<species> megaspecs;
-  calctimetoall(ttfs, megaspecs, lbound, ubound);
+  std::forward_list<attack> plusatks;
+  calctimetoall(ttfs, megaspecs, plusatks, lbound, ubound);
   std::sort(ttfs.begin(), ttfs.end());
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   std::cout.precision(1);
