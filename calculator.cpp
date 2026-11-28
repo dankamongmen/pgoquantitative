@@ -94,7 +94,7 @@ void print_summary(const std::string& league, int cpbound, const species* s, uns
   std::cout << "\thp: " << mhp;
   auto gmean = calc_gmean(effa, effd, mhp);
   auto sprod = calc_sprod(effa, effd, mhp);
-  stats* st = find_optimal_set(*s, cpbound, 0, shadow, calc_pok_sprod);
+  stats* st = find_optimal_set(*s, cpbound, 0, 0, shadow, calc_pok_sprod);
   if(!st){
     std::cout << "\tgmean: " << gmean << std::endl;
     return;
