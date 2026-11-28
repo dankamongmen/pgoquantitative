@@ -381,15 +381,15 @@ $(OUT)/functionalML.html: $(OUT)/functional
 
 $(OUT)/listGL.html: $(OUT)/stat
 	@mkdir -p $(@D)
-	$(<) 1500 > $@
+	$(<) 0 1500 > $@
 
 $(OUT)/listUL.html: $(OUT)/stat
 	@mkdir -p $(@D)
-	$(<) 2500 > $@
+	$(<) 1500 2500 > $@
 
 $(OUT)/listML.html: $(OUT)/stat
 	@mkdir -p $(@D)
-	$(<) > $@
+	$(<) 2500 0 > $@
 
 $(OUT)/%GL.html: $(OUT)/%
 	@mkdir -p $(@D)

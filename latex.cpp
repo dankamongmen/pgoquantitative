@@ -167,7 +167,7 @@ print_evolution_table(const species &s){
 // returns maximum actual cp subject to the ceiling
 static unsigned
 print_optimal_latex_cp(const species &sp, int maxcp){
-  stats* s = find_optimal_set(sp, maxcp, 0, false, calc_pok_gmean);
+  stats* s = find_optimal_set(sp, maxcp, 0, 0, false, calc_pok_gmean);
   unsigned foundcp = 0;
   unsigned cp = 0;
   unsigned printed = 0;

@@ -456,7 +456,6 @@ static const attack ATK_Bulldoze{ "Bulldoze", TYPE_GROUND, 80, -55, 0, 0, 0, 0, 
 	80, 50, 7, false, };
 static const attack ATK_Chilling_Water{ "Chilling Water", TYPE_WATER, 60, -45, 0, 0, 0, 1000, 0, 0, 0, -1, 0,
 	65, 33, 7, false, };
-// FIXME verify actual stats
 static const attack ATK_Chilling_Water_Plus{ "Chilling Water+", TYPE_WATER, 45, -45, 0, 0, 0, 1000, 0, 0, 0, -1, 0,
 	160, 100, 7, false, };
 static const attack ATK_Clanging_Scales{ "Clanging Scales", TYPE_DRAGON, 120, -45, 0, 0, 1000, 0, 0, 0, -1, 0, 0,

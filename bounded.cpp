@@ -261,10 +261,10 @@ get_species_opt(stats **sols, const species &sp, int bound, int lbound,
   if(sp.shadow && !noshadows){
     shadowstuff = true;
   }
-  stats *s = find_optimal_set(sp, bound, 0, false, fitfxn);
+  stats *s = find_optimal_set(sp, bound, 0, 0, false, fitfxn);
   if(shadowstuff){
     const species *shads = create_shadow(sp);
-    stats *shadsets = find_optimal_set(*shads, bound, lbound, true, fitfxn);
+    stats *shadsets = find_optimal_set(*shads, bound, lbound, 0, true, fitfxn);
     insert_opt_stat(sols, shadsets, cmpfxn, tiefxn, lbound, lstats);
   }
   insert_opt_stat(sols, s, cmpfxn, tiefxn, lbound, lstats);

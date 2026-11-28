@@ -425,15 +425,16 @@ calc_eff_power_nx1(const species &s, const attack* a){
 
 // FIXME binary search on it
 static unsigned
-maxlevel_cp_bounded(const species &s, unsigned atk, unsigned def, unsigned sta, int cpceil, int *cp){
+maxlevel_cp_bounded(const species &s, unsigned atk, unsigned def, unsigned sta,
+                    int cpceil, int cpfloor, int *cp){
   unsigned lastgood = 0;
   *cp = 0;
   for(unsigned hl = s.category_min_level() ; hl <= MAX_HALFLEVEL_BASIC ; ++hl){
     int tmpc = calccp(atk, def, sta, hl);
-    if(tmpc <= cpceil || cpceil <= 0){
+    if((tmpc <= cpceil || cpceil <= 0) && (tmpc >= cpfloor)){
       lastgood = hl;
       *cp = tmpc;
-    }else{
+    }else if(tmpc > cpceil && cpceil > 0){
       break;
     }
   }
@@ -563,14 +564,14 @@ update_optset(stats** osets, const species &s, unsigned ia, unsigned id,
 // with a CP less than or equal to cpceil and fitness function greater than or
 // equal to floor.
 static stats *
-find_optimal_set(const species &s, int cpceil, double floor, bool isshadow, double(*fitfxn)(const stats *)){
+find_optimal_set(const species &s, int cpceil, int cpfloor, double floor, bool isshadow, double(*fitfxn)(const stats *)){
   stats* optsets = nullptr;
   double minfit = -1;
   for(int iva = 0 ; iva < 16 ; ++iva){
     for(int ivd = 0 ; ivd < 16 ; ++ivd){
       for(int ivs = 0 ; ivs < 16 ; ++ivs){
         int cp;
-        unsigned hl = maxlevel_cp_bounded(s, s.atk + iva, s.def + ivd, s.sta + ivs, cpceil, &cp);
+        unsigned hl = maxlevel_cp_bounded(s, s.atk + iva, s.def + ivd, s.sta + ivs, cpceil, cpfloor, &cp);
         if(hl == 0){
           continue;
         }
@@ -1105,7 +1106,7 @@ lex_ivlevel(const char* ivl, stats* s, const species &sp, bool shadow){
     ++ivl;
   }
   if((r = sscanf(ivl, "opt%u", &cp)) == 1){
-    stats *st = find_optimal_set(sp, cp, 0, shadow, calc_pok_gmean);
+    stats *st = find_optimal_set(sp, cp, 0, 0, shadow, calc_pok_gmean);
     if(!st){
       fprintf(stderr, "couldn't find optimal config for cp %u\n", cp);
       return -1;
@@ -1124,9 +1125,9 @@ lex_ivlevel(const char* ivl, stats* s, const species &sp, bool shadow){
       return -1;
     }
     if(strcmp(ivl, "gl") == 0){
-      s->hlevel = maxlevel_cp_bounded(sp, sp.atk + s->ia, sp.def + s->id, sp.sta + s->is, GLCPCAP, &cp);
+      s->hlevel = maxlevel_cp_bounded(sp, sp.atk + s->ia, sp.def + s->id, sp.sta + s->is, GLCPCAP, 0, &cp);
     }else if(strcmp(ivl, "ul") == 0){
-      s->hlevel = maxlevel_cp_bounded(sp, sp.atk + s->ia, sp.def + s->id, sp.sta + s->is, ULCPCAP, &cp);
+      s->hlevel = maxlevel_cp_bounded(sp, sp.atk + s->ia, sp.def + s->id, sp.sta + s->is, ULCPCAP, GLCPCAP, &cp);
     }else{
       char *endptr;
       s->hlevel = strtoul(ivl, &endptr, 10);

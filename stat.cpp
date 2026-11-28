@@ -82,13 +82,13 @@ turns_until_e(const attack *a, unsigned e){
 }
 
 static void
-calctimespecies(const species &s, std::vector<ttfs> &ttfs, int bound){
-  stats maxstat(&s, MAX_HALFLEVEL, MAXIVELEM, MAXIVELEM, MAXIVELEM, false);
+calctimespecies(const species &s, std::vector<ttfs> &ttfs, int lbound, int ubound){
+  stats maxstat(&s, MAX_HALFLEVEL_BASIC, MAXIVELEM, MAXIVELEM, MAXIVELEM, false);
   stats *st;
-  if(bound > 0){
-    st = find_optimal_set(s, bound, 0, false, calc_pok_sprod);
+  if(lbound > 0 || ubound > 0){
+    st = find_optimal_set(s, ubound, lbound, 0, false, calc_pok_sprod);
     if(!st){
-      std::cerr << "couldn't find optimal config for " << s.name << " with " << bound << " bound" << std::endl;
+      std::cerr << "couldn't find optimal config for " << s.name << " with " << lbound << " lbound, " << ubound << " ubound" << std::endl;
       return;
     }
   }else{
@@ -123,18 +123,18 @@ calctimespecies(const species &s, std::vector<ttfs> &ttfs, int bound){
 
 // get time to first and damage for all fast+charged pairs
 static void
-calctimetoall(std::vector<ttfs> &ttfs, std::vector<species> &megaspecs, int bound){
+calctimetoall(std::vector<ttfs> &ttfs, std::vector<species> &megaspecs, int lbound, int ubound){
   for(auto s = species_begin() ; s != species_end() ; ++s){
     if(s->name.contains("Aegislash")){
       continue; // FIXME
     }
-    calctimespecies(*s, ttfs, bound);
+    calctimespecies(*s, ttfs, lbound, ubound);
     for(const auto &m : s->mforms){
       megaspecs.emplace_back(&*s, m);
     }
   }
   for(const auto &s : megaspecs){
-    calctimespecies(s, ttfs, bound);
+    calctimespecies(s, ttfs, lbound, ubound);
   }
 }
 
@@ -203,27 +203,22 @@ static void footer(void){
 }
 
 int main(int argc, char **argv){
-  int bound;
-  if(argc > 2){
+  int lbound, ubound;
+  if(argc != 3){
     usage(argv[0]);
-  }else if(argc < 2){
-    bound = 0;
-  }else{
-    bound = atoi(argv[1]);
-    if(bound <= 0){
-      usage(argv[0]);
-    }
   }
+  lbound = atoi(argv[1]); // FIXME error check use strtoul
+  ubound = atoi(argv[2]);
   std::vector<ttfs> ttfs;
-  header(!!bound);
+  header(!!ubound);
   std::vector<species> megaspecs;
-  calctimetoall(ttfs, megaspecs, bound);
+  calctimetoall(ttfs, megaspecs, lbound, ubound);
   std::sort(ttfs.begin(), ttfs.end());
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   std::cout.precision(1);
   std::cout << std::noshowpoint;
   for(const auto &t : ttfs){
-    emit_line(t, !!bound);
+    emit_line(t, !!ubound);
   }
   footer();
   return EXIT_SUCCESS;

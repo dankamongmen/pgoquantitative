@@ -907,7 +907,7 @@ void generate_ivs_maxlevel(const species &s, int cpceil, stats *svec, bool shado
         const unsigned moda = s.atk + iva;
         const unsigned modd = s.def + ivd;
         const unsigned mods = s.sta + ivs;
-        auto hlevel = maxlevel_cp_bounded(s, moda, modd, mods, cpceil, &st.cp);
+        auto hlevel = maxlevel_cp_bounded(s, moda, modd, mods, cpceil, 0, &st.cp);
         if(hlevel){
           st.init(&s, hlevel, iva, ivd, ivs, shadow);
         }
@@ -1071,10 +1071,7 @@ bool usable_in_league(const species &s, int min, int max){
     for(int ivd = 0 ; ivd <= MAXIVELEM ; ++ivd){
       for(int ivs = 0 ; ivs <= MAXIVELEM ; ++ivs){
         int cp;
-        auto hl = maxlevel_cp_bounded(s, s.atk + iva, s.def + ivd, s.sta + ivs, max, &cp);
-        if(cp < min){
-          continue;
-        }
+        auto hl = maxlevel_cp_bounded(s, s.atk + iva, s.def + ivd, s.sta + ivs, max, min, &cp);
         if(hl){
           return true;
         }
