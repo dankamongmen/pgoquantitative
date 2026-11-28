@@ -1,5 +1,5 @@
 .DELETE_ON_ERROR:
-.PHONY: all extra preview testsimul clean test testdb testsimullong testweb web graphs upload
+.PHONY: all extra preview testsimul clean test testdb testsimullong testweb web graphs upload testlowmem
 .DEFAULT_GOAL:=web
 
 CPP:=clang++
@@ -550,7 +550,9 @@ $(OUT)/%.o: %.cpp $(COREHEADERS) html.h
 	@mkdir -p $(@D)
 	$(CPP) $(CPPFLAGS) -g -c -o $@ -O2 $(<F)
 
-test: $(TEAMBUILDER) testsimul testdb testweb
+test: testlowmem testsimul
+
+testlowmem: $(TEAMBUILDER) testdb testweb
 	$< metagross -u 0-0-0@1 'zen headbutt' psychic
 	$< metagross -g 0-4-15@29 'zen headbutt' psychic
 	$< 'shadow metagross' 15-15-15@99 'zen headbutt' 'psychic/meteor mash'

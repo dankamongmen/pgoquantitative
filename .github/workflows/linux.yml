@@ -30,4 +30,4 @@ jobs:
 
       - name: test
         run: |
-          make test
+          make testlowmem
