@@ -510,8 +510,21 @@ std::vector<const attack*>::const_iterator attacks_end(void){
 
 const attack *lookup_attack(const std::string &s){
   for(auto a = attacks_begin() ; a != attacks_end() ; ++a){
-    if((*a)->name == s){
+    if(std::ranges::equal((*a)->name, s, {},
+        [](const auto& c){ return tolower(c); },
+        [](const auto& c){ return tolower(c); })){
       return *a;
+    }
+  }
+  for(auto sp = species_begin() ; sp != species_end() ; ++sp){
+    for(const auto &m : sp->mforms){
+      if(m.plusatk){
+        if(std::ranges::equal(m.plusatk->name, s, {},
+            [](const auto& c){ return tolower(c); },
+            [](const auto& c){ return tolower(c); })){
+          return m.plusatk;
+        }
+      }
     }
   }
   return nullptr;
