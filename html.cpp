@@ -1289,9 +1289,16 @@ static void
 write_species_league_toprank(std::ostream &fp, unsigned hlevel, const stats *s,
                              unsigned ivcount, unsigned r, const char *league,
                              bool purified){
+  constexpr auto BOLD_THRESHOLD = 98.5;
   fp << std::fixed << std::setprecision(2);
+  const auto spmax = s[ivcount - 1].statprod();
   const stats &st = s[ivcount - r];
-  fp << "<tr>";
+  const auto sppct = st.statprod() * 100 / spmax;
+  if(sppct > BOLD_THRESHOLD){
+    fp << "<tr style=\"font-weight: bold;\">";
+  }else{
+    fp << "<tr>";
+  }
   fp << "<td>";
   species_with_icons(fp, *st.s, true, 2);
   if(purified){
@@ -1307,8 +1314,7 @@ write_species_league_toprank(std::ostream &fp, unsigned hlevel, const stats *s,
   fp << "<td>" << st.effa << "</td>";
   fp << "<td>" << st.effd << "</td>";
   fp << "<td>" << st.mhp << "</td>";
-  const auto spmax = s[ivcount - 1].statprod();
-  fp << "<td>" << (st.statprod() * 100 / spmax) << "</td>";
+  fp << "<td>" << sppct << "</td>";
   fp << "</tr>";
 }
 

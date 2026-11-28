@@ -283,11 +283,11 @@ struct stats {
     }
   }
 
-  double bulk() const {
+  auto bulk() const {
     return sqrt(mhp * effd);
   }
 
-  double statprod() const {
+  auto statprod() const {
     return effa * effd * mhp;
   }
 

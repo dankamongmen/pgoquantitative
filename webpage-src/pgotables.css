@@ -501,7 +501,7 @@ table#evolworse tr>:nth-child(5) { /* relationship */
 }
 
 /* family-iv pages (result of iv search on mon page) */
-table.speciesivs { margin: 0 0 0 1em; }
+table.speciesivs { margin: 2px 0 2px 1em; }
 table.speciesivs tr>:nth-child(2n+3) { padding: 0 0 0 1em; text-align: left; }
 table.speciesivs tr>:nth-child(even) { padding: 0 0 0 1em; text-align: right; }
 .famsummary { margin: 0 1em 2em 1em; }
