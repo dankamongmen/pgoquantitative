@@ -1,0 +1,31 @@
+---
+name: Linux
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  tests:
+    name: 🐧 build and test
+    runs-on: debian-latest
+
+    steps:
+
+      - name: Install tools and libraries via APT
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+
+      - uses: actions/checkout@v2
+
+      - name: make
+        run: |
+          make
+
+      - name: test
+        run: |
+          make test
