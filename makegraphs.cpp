@@ -62,7 +62,8 @@ write_iv_graphs(const species &s){
         if(!charged_attack_p(*ca2)){
           continue;
         }
-        if(cset.first->second.find(ca2) == cset.first->second.end()){
+        auto c2res = cset.first->second.emplace(ca2);
+        if(c2res.second){
           if(write_pacing(a, ca, ca2)){
             throw std::exception();
           }
